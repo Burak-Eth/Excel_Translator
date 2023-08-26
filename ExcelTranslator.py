@@ -4,47 +4,47 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 def get_translation_direction():
     while True:
-        print("Çeviri Yönünü Seçin:")
-        print("1. İngilizce-Türkçe")
-        print("2. Türkçe-İngilizce ")
-        choice = input("Seçiminizi yapın (1 veya 2): ")
+        print("Select Translation Direction:")
+        print("1. English-Turkish")
+        print("2. Turkish-English")
+        choice = input("Choose an option (1 or 2): ")
         if choice == '1':
             return "turkish"
         elif choice == '2':
             return "english"
         else:
-            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+            print("Invalid choice. Please try again.")
 
 def get_sheet_selection(sheet_names):
     while True:
-        print("Seçilebilecek Sayfalar:")
-        print("0. Tüm Sayfaları Seç")
+        print("Selectable Sheets:")
+        print("0. Select All Sheets")
         for idx, sheet_name in enumerate(sheet_names, start=1):
             print(f"{idx}. {sheet_name}")
         try:
-            choice = int(input("Lütfen bir sayfa seçin: "))
+            choice = int(input("Please select a sheet: "))
             if 0 <= choice <= len(sheet_names):
                 return choice
             else:
-                print("Geçersiz seçim. Lütfen tekrar deneyin.")
+                print("Invalid choice. Please try again.")
         except ValueError:
-            print("Lütfen geçerli bir sayı girin.")
+            print("Please enter a valid number.")
 
 def get_cell_range(sheet_name):
     while True:
-        range_choice = input(f"{sheet_name} için hücre aralığı belirtmek ister misiniz? (E/H): ")
-        if range_choice.lower() == 'e':
+        range_choice = input(f"Do you want to specify a cell range for {sheet_name}? (Y/N): ")
+        if range_choice.lower() == 'y':
             while True:
-                range_str = input("Lütfen hücre aralığını girin (örn. A1:C10): ")
+                range_str = input("Please enter the cell range (e.g., A1:C10): ")
                 try:
                     cell_range = workbook[sheet_name][range_str]
                     return cell_range
                 except ValueError:
-                    print("Geçersiz aralık. Lütfen tekrar deneyin.")
-        elif range_choice.lower() == 'h':
+                    print("Invalid range. Please try again.")
+        elif range_choice.lower() == 'n':
             return workbook[sheet_name]['A1':f'{openpyxl.utils.get_column_letter(workbook[sheet_name].max_column)}{workbook[sheet_name].max_row}']
         else:
-            print("Geçersiz seçim. Lütfen tekrar deneyin.")
+            print("Invalid choice. Please try again.")
 
 def translate_text(text, tokenizer, model):
     cleaned_text = clean_special_tokens(text, tokenizer)
@@ -58,7 +58,7 @@ def clean_special_tokens(text, tokenizer):
 
 if __name__ == "__main__":
     cache_dir = os.getcwd()
-    print("Yapay zeka destekli çeviri modelleri yükleniyor... lütfen bekleyin. (İnternet kullanımı olmaz.)")
+    print("Loading AI-powered translation models... please wait. (No internet access required.)")
     turkish_model_name = "Helsinki-NLP/opus-tatoeba-en-tr"
     turkish_tokenizer = AutoTokenizer.from_pretrained(turkish_model_name, cache_dir=cache_dir)
     turkish_model = AutoModelForSeq2SeqLM.from_pretrained(turkish_model_name, cache_dir=cache_dir)
@@ -71,13 +71,13 @@ if __name__ == "__main__":
     excel_files = [file for file in os.listdir(current_directory) if file.endswith('.xlsx')]
 
     if not excel_files:
-        print("Dizinde hiç Excel dosyası bulunamadı.")
+        print("No Excel files found in the directory.")
     else:
-        print("Seçilebilecek Excel Dosyaları:")
+        print("Selectable Excel Files:")
         for idx, file in enumerate(excel_files, start=1):
             print(f"{idx}. {file}")
         try:
-            choice = int(input("Lütfen bir Excel dosyası seçin: "))
+            choice = int(input("Please choose an Excel file: "))
             if 1 <= choice <= len(excel_files):
                 selected_file = excel_files[choice - 1]
                 workbook = openpyxl.load_workbook(selected_file)
@@ -109,9 +109,9 @@ if __name__ == "__main__":
                                 cell.value = translated_text
 
                 workbook.save(f"translated_{selected_file}")
-                print(f"'{selected_file}' dosyası çevrildi ve 'translated_{selected_file}' olarak kaydedildi.")
-                input("Push enter...")
+                print(f"'{selected_file}' translated and saved as 'translated_{selected_file}'.")
+                input("Press enter...")
             else:
-                print("Geçersiz seçim. Lütfen tekrar deneyin.")
+                print("Invalid choice. Please try again.")
         except ValueError:
-            print("Lütfen geçerli bir sayı girin.")
+            print("Please enter a valid number.")
